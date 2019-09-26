@@ -9,37 +9,63 @@ main_menu() {
     echo
     echo
     echo Main Options
-    echo [1] List variables
-    echo [2] Update variable
-    echo [3] Delete variable
-    echo [4] Add variable
-    echo [5] Exit
+    echo [1] Init/Switch Config
+    echo [2] List variables
+    echo [3] Update variable
+    echo [4] Delete variable
+    echo [5] Add variable
+    echo [6] Create New Config
+    echo [7] Delete Config
+
+    echo [8] Exit
     read -p "Please select an option: " SELECTED_CONFIG
 
     if [[ $SELECTED_CONFIG -eq 1 ]]
     then
+        gcloud init
+    elif [[ $SELECTED_CONFIG -eq 2 ]]
+    then
         config_list 1
         variable_list 0 "variables set in '${SELECTED_CONFIG_NAME}'"
-    elif [[ $SELECTED_CONFIG -eq 2 ]]
+    elif [[ $SELECTED_CONFIG -eq 3 ]]
     then
         config_list 1
         variable_list 1 "Config Name: '${SELECTED_CONFIG_NAME}' \n " "Select a variable (index) to update: "
         update_variable
-    elif [[ $SELECTED_CONFIG -eq 3 ]]
+    elif [[ $SELECTED_CONFIG -eq 4 ]]
     then
         config_list 1
         variable_list 1 "Config Name: '${SELECTED_CONFIG_NAME}' \n " "Select a variable (index) to delete: "
         delete_variable
-    elif [[ $SELECTED_CONFIG -eq 4 ]]
+    elif [[ $SELECTED_CONFIG -eq 5 ]]
     then
         config_list 1
         add_variable
-    elif [[ $SELECTED_CONFIG -eq 5 ]]
+    elif [[ $SELECTED_CONFIG -eq 6 ]]
+    then
+        create_config
+    elif [[ $SELECTED_CONFIG -eq 7 ]]
+    then
+        delete_config
+    elif [[ $SELECTED_CONFIG -eq 8 ]]
     then
         exit
     fi
 
     main_menu
+}
+
+
+delete_config(){
+    read -p "What is the name of the configuration you'd like to delete: " NEW_CONFIG_NAME
+    gcloud beta runtime-config configs delete ${NEW_CONFIG_NAME}
+    config_list 1 0
+}
+
+create_config(){
+    read -p "What is the name of the configuration you'd like to create: " NEW_CONFIG_NAME
+    gcloud beta runtime-config configs create ${NEW_CONFIG_NAME}
+    config_list 1 0
 }
 
 list_variables() {
@@ -135,8 +161,16 @@ variable_list() {
 
 
 config_list() {
+    SHOW_LIST=$1
+    SHOW_PROMPT=$2
 
-    if [[ $1 -eq 1 ]]
+    if [[ ! -z "$SHOW_PROMPTT" ]]
+    then
+        echo setting default show prompt
+        SHOW_PROMPT=1
+    fi
+
+    if [[ SHOW_LIST -eq 1 ]]
     then
         echo
         echo
@@ -153,21 +187,25 @@ config_list() {
         done
         echo
     fi
-    echo
-    read -p "Which cloud config would you like to use: " SELECTED_CONFIG_INDEX
-    echo
 
-    if ! [[ "$SELECTED_CONFIG_INDEX" =~ ^[0-9]+$ ]]
-    then
-        echo Invalid option!! please select a number between 1 and ${CONFIG_COUNTER}
-        config_list 0
-    fi
-
-    if [[ ${SELECTED_CONFIG_INDEX} -gt ${CONFIG_COUNTER} ]] || [[ ${SELECTED_CONFIG_INDEX} -lt 1 ]]
-    then
+    if [[ SHOW_PROMPT -eq 1 ]]
+        then
         echo
-        echo Invalid option!! please select a number between 1 and ${CONFIG_COUNTER}
-        config_list 0
+        read -p "Which cloud config would you like to use: " SELECTED_CONFIG_INDEX
+        echo
+
+        if ! [[ "$SELECTED_CONFIG_INDEX" =~ ^[0-9]+$ ]]
+        then
+            echo Invalid option!! please select a number between 1 and ${CONFIG_COUNTER}
+            config_list 0
+        fi
+
+        if [[ ${SELECTED_CONFIG_INDEX} -gt ${CONFIG_COUNTER} ]] || [[ ${SELECTED_CONFIG_INDEX} -lt 1 ]]
+        then
+            echo
+            echo Invalid option!! please select a number between 1 and ${CONFIG_COUNTER}
+            config_list 0
+        fi
     fi
     # echo You Selected ${SELECTED_CONFIG_INDEX} ${CONFIG_LIST[$SELECTED_CONFIG_INDEX-1]}
     SELECTED_CONFIG_NAME=${CONFIG_LIST[$SELECTED_CONFIG_INDEX-1]}
@@ -178,7 +216,7 @@ project_display(){
     echo
     CURRENT_PROJECT=$(  gcloud config list --format 'value(core.project)')
     echo Current Project: ${CURRENT_PROJECT}
-    echo -e "\n\n If you'd like to select a different project please quit and run: 'gcloud init'"
+    echo -e "\n\n If you'd like to select a different project please [1] Init/Switch Config"
 }
 
 
