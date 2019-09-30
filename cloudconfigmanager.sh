@@ -18,40 +18,40 @@ main_menu() {
     echo [7] Delete Config
 
     echo [8] Exit
-    read -p "Please select an option: " SELECTED_CONFIG
+    read -p "Please select an option: " SELECTION_MENU_ITEM
 
-    if [[ $SELECTED_CONFIG -eq 1 ]]
+    if [[ SELECTION_MENU_ITEM -eq 1 ]]
     then
         gcloud init
-    elif [[ $SELECTED_CONFIG -eq 2 ]]
+    elif [[ SELECTION_MENU_ITEM -eq 2 ]]
     then
-        config_list 1
+        config_list 1 1
         variable_list 0 "variables set in '${SELECTED_CONFIG_NAME}'"
-    elif [[ $SELECTED_CONFIG -eq 3 ]]
+    elif [[ SELECTION_MENU_ITEM -eq 3 ]]
     then
-        config_list 1
+        config_list 1 1
         variable_list 1 "Config Name: '${SELECTED_CONFIG_NAME}' \n " "Select a variable (index) to update: "
         update_variable
-    elif [[ $SELECTED_CONFIG -eq 4 ]]
+    elif [[ SELECTION_MENU_ITEM -eq 4 ]]
     then
         config_list 1
         variable_list 1 "Config Name: '${SELECTED_CONFIG_NAME}' \n " "Select a variable (index) to delete: "
         delete_variable
-    elif [[ $SELECTED_CONFIG -eq 5 ]]
+    elif [[ SELECTION_MENU_ITEM -eq 5 ]]
     then
-        config_list 1
+        config_list 1 1
         add_variable
-    elif [[ $SELECTED_CONFIG -eq 6 ]]
+    elif [[ SELECTION_MENU_ITEM -eq 6 ]]
     then
         create_config
-    elif [[ $SELECTED_CONFIG -eq 7 ]]
+    elif [[ SELECTION_MENU_ITEM -eq 7 ]]
     then
         delete_config
-    elif [[ $SELECTED_CONFIG -eq 8 ]]
+    elif [[ SELECTION_MENU_ITEM -eq 8 ]]
     then
         exit
     fi
-
+# curl localhost:8080/actuator/refresh -d {} -H "Content-Type: application/json"
     main_menu
 }
 
